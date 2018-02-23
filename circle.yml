@@ -1,0 +1,40 @@
+machine:
+  node:
+    version: 8.0.0
+
+dependencies:
+  override:
+    # Install dependencies
+    - yarn
+  cache_directories:
+    - ~/.cache/yarn
+test:
+  override:
+    # No tests or linting, this is only a test project!
+    - npm run lint
+    - npm run test
+
+# First one that matches will be run
+deployment:
+  # # Tags with version numbers get deployed to production
+  prod:
+    tag: /v[0-9]+(\.[0-9]+)*/
+    commands:
+      - ./scripts/build.sh production
+      - ./scripts/upload.sh production
+      - ./scripts/deploy.sh production
+
+  # Branch master is continuously pushed to staging
+  staging:
+    branch: master
+    commands:
+      - ./scripts/build.sh staging
+      - ./scripts/upload.sh staging
+      - ./scripts/deploy.sh staging
+
+  # Every other branch is prepared to be deployed to sandbox, but not deployed
+  sandbox:
+    branch: /.+/
+    commands:
+      - ./scripts/build.sh sandbox
+      - ./scripts/upload.sh sandbox

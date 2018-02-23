@@ -1,0 +1,11 @@
+src/images
+src/images-bak
+src/resizer.sh
+node_modules
+npm-debug.log
+.DS_Store
+.gitignore~
+dist
+.vscode
+yarn-error*
+*lambda-zip*
