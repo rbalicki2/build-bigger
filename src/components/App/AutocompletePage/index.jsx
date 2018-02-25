@@ -6,5 +6,4 @@ export default () => (<div style={{ maxWidth: 800, margin: '50px auto' }}>
     <h2>One long file</h2>
     <h3>Tag: v0</h3>
   </div>
-  
 </div>);
