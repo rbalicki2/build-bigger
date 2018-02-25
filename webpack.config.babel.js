@@ -24,7 +24,6 @@ const fileLoaderString = `file-loader?name=${staticFolderWithSlash}/[name].[ext]
 export default {
   entry: {
     [`${staticFolderWithSlash}/bundle.js`]: entryFirstHalf.concat([
-      'babel-polyfill',
       './src/index.jsx',
     ]).concat(
       isProduction
