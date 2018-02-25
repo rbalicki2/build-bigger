@@ -45,6 +45,7 @@ class Autocomplete extends Component {
     if (this.state.currentText) {
       this.fetchAutocomplete();
     }
+    document.addEventListener('click', this.handleDocumentClick);
   }
 
   componentWillReceiveProps(newProps) {
@@ -55,10 +56,35 @@ class Autocomplete extends Component {
         currentText: newProps.qs.searchText || '',
       }, this.fetchAutocomplete);
     }
+    this.isUpdatingVisibility = true;
     this.setState({
       visible: true,
     });
+    setTimeout(() => {
+      this.isUpdatingVisibility = false;
+    });
   }
+
+  componentWillUnmount() {
+    document.removeEventListener('click', this.handleDocumentClick);
+  }
+
+  handleDocumentClick = (e) => {
+    // if we are clicking on the rest of the document, we want to
+    // hide the dropdown
+
+    // N.B. We need this.isUpdatingVisibility because handleDocumentClick
+    // is called after componentWillReceiveProps, and don't want to override
+    // the setState({ visible: true })
+    if (
+      this.inputEl
+        && e.target !== this.inputEl
+        && this.state.visible
+        && !this.isUpdatingVisibility
+    ) {
+      this.setState({ visible: false });
+    }
+  };
 
   fetchAutocomplete = () => {
     const currentId = this.state.currentId + 1;
@@ -69,7 +95,7 @@ class Autocomplete extends Component {
     });
     fetchAutocompleteResults(currentText)
       .then((arr) => {
-        // Check if the currentId matches. Only update state if it does.
+        // N.B. Check if the currentId matches. Only update state if it does.
         if (currentId !== this.state.currentId) {
           return;
         }
@@ -86,15 +112,16 @@ class Autocomplete extends Component {
       currentText: value || '',
     }, () => {
       this.fetchAutocomplete();
-      // we need to wait until the currentText has been committed to state,
-      // because otherwise the check in componentWillReceiveProps will be incorrect!
+      // N.B. we need to wait until the currentText has been committed to state,
+      // because otherwise the check in componentWillReceiveProps will be incorrect,
+      // and we will call fetchAutocomplete twice!
       window.history.replaceState(null, null, `?${queryString.stringify(qs)}`);
     });
     const qs = {
       ...queryString.parse(location.search),
       searchText: value,
     };
-    // will not work here:
+    // N.B. will not work here:
     // window.history.replaceState(null, null, `?${queryString.stringify(qs)}`);
   };
 
@@ -123,8 +150,9 @@ class Autocomplete extends Component {
         type="text"
         value={this.state.currentText}
         onChange={this.updateText}
-        onClick={() => this.setState({ visible: true })}
         onBlur={() => this.setState({ visible: false })}
+        onFocus={() => this.setState({ visible: true })}
+        ref={(el) => { this.inputEl = el; }}
       />
       { visible && autocompleteContainer }
     </div>);
