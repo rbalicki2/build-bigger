@@ -1,7 +1,67 @@
 import React, { Component } from 'react';
-
+import styled from 'styled-components';
 import fetchAutocompleteResults from 'src/services/autocomplete-service';
 import queryString from 'query-string';
+
+const BORDER_COLOR = '#c8dae3';
+const BLUE_COLOR = '#4340de';
+const Input = styled.input`
+  width: 100%;
+  box-sizing: border-box;
+  padding: 12px;
+  font-size: 18px;
+
+  outline: none;
+  transition: all 0.2s ease-in-out;
+  border: 1px solid ${BORDER_COLOR};
+  font-family: sans-serif;
+  color: #2b303d;
+  &:hover {
+    border-color: #79818f;
+  }
+  &:focus {
+    border-color: ${BLUE_COLOR};
+  }
+
+  &::placeholder {
+    color: #a5b5c1;
+    font-weight: 300;
+  }
+`;
+
+const ResultsContainer = styled.div`
+  width: 100%;
+  background-color: white;
+  /* box-shadow: 0px 2px 4px 0px ${BORDER_COLOR}; */
+  border-right: 1px solid ${BORDER_COLOR};
+  border-left: 1px solid ${BORDER_COLOR};
+  box-sizing: border-box;
+`;
+
+const ResultsContainerInner = styled.div`
+`;
+
+const OuterContainer = styled.div`
+  width: 100%;
+  max-width: 400px;
+`;
+
+const List = styled.ul`
+  list-style: none;
+  padding: 0px;
+  margin: 0px;
+  font-family: sans-serif;
+  font-weight: 300;
+
+  li {
+    padding: 12px;
+    border-bottom: 1px solid ${BORDER_COLOR};
+    cursor: pointer;
+    &:hover {
+      background-color: ${BORDER_COLOR};
+    }
+  }
+`;
 
 export default class AutocompleteWrapper extends Component {
   state = {
@@ -129,32 +189,28 @@ class Autocomplete extends Component {
     const { autocompleteValues, loading, visible } = this.state;
     const autocompleteRows = autocompleteValues.map(val => <li key={val}>{ val }</li>);
     const autocompleteSection = autocompleteValues.length > 0
-      ? (<ul>{ autocompleteRows }</ul>)
-      : <div>No results found!</div>;
+      ? (<List>{ autocompleteRows }</List>)
+      : <List><li>No results found!</li></List>;
     const autocompleteDiv = loading
-      ? <div>Loading...</div>
+      ? <List><li>Loading...</li></List>
       : autocompleteSection;
-    const autocompleteContainer = (<div
-      style={{
-        width: 300,
-        backgroundColor: '#FAFAFA',
-        boxShadow: '0px 2px 4px 0px #EEE',
-        padding: 20,
-      }}
-    >
-      { autocompleteDiv }
-    </div>);
+    const autocompleteContainer = (<ResultsContainer>
+      <ResultsContainerInner>
+        { autocompleteDiv }
+      </ResultsContainerInner>
+    </ResultsContainer>);
 
-    return (<div>
-      <input
+    return (<OuterContainer>
+      <Input
+        placeholder="Search for movies, or something"
         type="text"
         value={this.state.currentText}
         onChange={this.updateText}
         onBlur={() => this.setState({ visible: false })}
         onFocus={() => this.setState({ visible: true })}
-        ref={(el) => { this.inputEl = el; }}
+        innerRef={(el) => { this.inputEl = el; }}
       />
       { visible && autocompleteContainer }
-    </div>);
+    </OuterContainer>);
   }
 }

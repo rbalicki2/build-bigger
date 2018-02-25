@@ -37,6 +37,10 @@ const getArrayFromTerm = (searchTerm: string): $ReadOnlyArray<string> =>
 
 const MAX_LENGTH = 3000;
 export default (searchTerm: string): Promise<$ReadOnlyArray<string>> => {
+  if (!searchTerm) {
+    return Promise.resolve(['Type something!']);
+  }
+
   const delayTime = Math.random() * MAX_LENGTH;
   return new Promise((resolve) => {
     setTimeout(() => resolve(getArrayFromTerm(searchTerm)), delayTime);
