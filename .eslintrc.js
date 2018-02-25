@@ -46,6 +46,9 @@ module.exports = {
     'react/no-unused-state': 2,
     'react/no-unused-prop-types': 2,
     'react/no-did-mount-set-state': 0,
+
+    'react/no-multi-comp': 0,
+    'react/prop-types': 0,
   },
   settings: {
     'import/resolver': {
