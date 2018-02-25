@@ -38,13 +38,26 @@ class Autocomplete extends Component {
     autocompleteValues: [],
     currentId: 0,
     loading: false,
-    visible: false,
+    visible: !!this.props.qs.searchText,
   };
 
+  componentDidMount() {
+    if (this.state.currentText) {
+      this.fetchAutocomplete();
+    }
+  }
+
   componentWillReceiveProps(newProps) {
+    // synchronize our local state with what was provided to us, if its different
+    // and make the box visible
+    if (newProps.qs.searchText !== this.state.currentText) {
+      this.setState({
+        currentText: newProps.qs.searchText || '',
+      }, this.fetchAutocomplete);
+    }
     this.setState({
-      currentText: newProps.qs.searchText || '',
-    }, this.fetchAutocomplete);
+      visible: true,
+    });
   }
 
   fetchAutocomplete = () => {
@@ -52,32 +65,37 @@ class Autocomplete extends Component {
     const { currentText } = this.state;
     this.setState({
       currentId,
-    }, () => {
-      fetchAutocompleteResults(currentText)
-        .then((arr) => {
-          // Check if the currentId matches. Only update state if it does.
-          if (currentId !== this.state.currentId) {
-            return;
-          }
-
-          this.setState({
-            autocompleteValues: arr,
-            loading: false,
-          });
-        });
+      loading: true,
     });
+    fetchAutocompleteResults(currentText)
+      .then((arr) => {
+        // Check if the currentId matches. Only update state if it does.
+        if (currentId !== this.state.currentId) {
+          return;
+        }
+
+        this.setState({
+          autocompleteValues: arr,
+          loading: false,
+        });
+      });
   }
 
   updateText = ({ target: { value } }) => {
     this.setState({
       currentText: value || '',
-      loading: true,
-    }, this.fetchAutocomplete);
+    }, () => {
+      this.fetchAutocomplete();
+      // we need to wait until the currentText has been committed to state,
+      // because otherwise the check in componentWillReceiveProps will be incorrect!
+      window.history.replaceState(null, null, `?${queryString.stringify(qs)}`);
+    });
     const qs = {
       ...queryString.parse(location.search),
       searchText: value,
     };
-    window.history.replaceState(null, null, `?${queryString.stringify(qs)}`);
+    // will not work here:
+    // window.history.replaceState(null, null, `?${queryString.stringify(qs)}`);
   };
 
   render() {
