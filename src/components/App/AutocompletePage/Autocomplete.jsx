@@ -29,7 +29,7 @@ export default class Autocomplete extends Component {
           autocompleteValues: arr,
           loading: false,
         });
-      })
+      });
   };
 
   render() {
@@ -41,12 +41,14 @@ export default class Autocomplete extends Component {
     const autocompleteDiv = loading
       ? <div>Loading...</div>
       : autocompleteSection;
-    const autocompleteContainer = (<div style={{
-      width: 300,
-      backgroundColor: '#FAFAFA',
-      boxShadow: '0px 2px 4px 0px #EEE',
-      padding: 20,
-    }}>
+    const autocompleteContainer = (<div
+      style={{
+        width: 300,
+        backgroundColor: '#FAFAFA',
+        boxShadow: '0px 2px 4px 0px #EEE',
+        padding: 20,
+      }}
+    >
       { autocompleteDiv }
     </div>);
 
