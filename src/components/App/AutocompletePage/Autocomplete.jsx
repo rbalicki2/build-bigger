@@ -3,34 +3,35 @@ import fetchAutocompleteResults from 'src/services/autocomplete-service';
 import queryString from 'query-string';
 import { Input, ResultsContainer, OuterContainer, List } from './Components';
 
-export default class AutocompleteWrapper extends Component {
-  state = {
-    qs: queryString.parse(location.search),
-  };
-
-  componentDidMount() {
-    this.originalReplaceState = history.replaceState;
-    history.replaceState = this.updateQueryString.bind(this, this.originalReplaceState);
-    this.originalPushState = history.pushState;
-    history.pushState = this.updateQueryString.bind(this, this.originalPushState);
-  }
-
-  componentWillUnmount() {
-    history.replaceState = this.originalReplaceState;
-    history.pushState = this.originalPushState;
-  }
-
-  updateQueryString = (method, ...args) => {
-    method.call(history, ...args);
-    this.setState({
+const addQueryParams = InnerComponent =>
+  class QueryParamSetter extends Component {
+    state = {
       qs: queryString.parse(location.search),
-    });
-  }
+    };
 
-  render() {
-    return <Autocomplete {...this.state} />;
-  }
-}
+    componentDidMount() {
+      this.originalReplaceState = history.replaceState;
+      history.replaceState = this.updateQueryString.bind(this, this.originalReplaceState);
+      this.originalPushState = history.pushState;
+      history.pushState = this.updateQueryString.bind(this, this.originalPushState);
+    }
+
+    componentWillUnmount() {
+      history.replaceState = this.originalReplaceState;
+      history.pushState = this.originalPushState;
+    }
+
+    updateQueryString = (method, ...args) => {
+      method.call(history, ...args);
+      this.setState({
+        qs: queryString.parse(location.search),
+      });
+    }
+
+    render() {
+      return <InnerComponent {...this.state} />;
+    }
+  };
 
 class Autocomplete extends Component {
   state = {
@@ -152,3 +153,5 @@ class Autocomplete extends Component {
     </OuterContainer>);
   }
 }
+
+export default addQueryParams(Autocomplete);
