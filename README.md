@@ -2,7 +2,7 @@
 
 > You can view the presentation [here](https://build-bigger.robertbalicki.com/presentation).
 
-## [Tag v0](https://github.com/rbalicki2/build-bigger/blob/v0/)
+## [Tag v0](https://github.com/rbalicki2/build-bigger/tree/v0/)
 
 ### Files to look at:
 
