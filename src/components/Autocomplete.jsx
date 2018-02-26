@@ -52,6 +52,27 @@ export default class AutocompleteStateHandler extends Component {
     visible: !!this.props.searchText,
   };
 
+  componentDidMount() {
+    document.addEventListener('click', this.handleDocumentClick);
+  }
+
+  componentWillUnmount() {
+    document.removeEventListener('click', this.handleDocumentClick);
+  }
+
+  handleDocumentClick = (e) => {
+    // if we are clicking on the rest of the document, we want to
+    // hide the dropdown
+    if (
+      this.inputEl
+        && e.target !== this.inputEl
+        && this.state.visible
+        && !this.isUpdatingVisibility
+    ) {
+      this.setState({ visible: false });
+    }
+  };
+
   fetchAutocomplete = (searchText) => {
     const currentRequestId = this.state.currentRequestId + 1;
     this.isUpdatingVisibility = true;
@@ -97,37 +118,25 @@ export default class AutocompleteStateHandler extends Component {
             updateSearchText={updateSearchText}
             loading={this.state.loading}
             visible={this.state.visible}
-            setVisible={this.updateVisibility}
+            setVisible={visible => this.setState({ visible })}
             autocompleteValues={this.state.autocompleteValues}
+            inputRef={(el) => { this.inputEl = el; }}
           />)
       }
     </QueryParamProvider>);
   }
 }
 
-class Autocomplete extends Component {
-  componentDidMount() {
-    document.addEventListener('click', this.handleDocumentClick);
-  }
-
-  componentWillUnmount() {
-    document.removeEventListener('click', this.handleDocumentClick);
-  }
-
-  handleDocumentClick = (e) => {
-    // if we are clicking on the rest of the document, we want to
-    // hide the dropdown
-    if (
-      this.inputEl
-        && e.target !== this.inputEl
-        && this.props.visible
-    ) {
-      this.props.setVisible(false);
-    }
-  };
-
-  get autocompleteContainer() {
-    const { autocompleteValues, loading } = this.props;
+const Autocomplete = ({
+  setVisible,
+  autocompleteValues,
+  loading,
+  visible,
+  inputRef,
+  searchText,
+  updateSearchText,
+}) => {
+  const autocompleteContainer = (() => {
     const autocompleteRows = autocompleteValues.map(val => <li key={val}>{ val }</li>);
     const autocompleteSection = autocompleteValues.length > 0
       ? (<List>{ autocompleteRows }</List>)
@@ -138,25 +147,20 @@ class Autocomplete extends Component {
     return (<ResultsContainer>
       { autocompleteDiv }
     </ResultsContainer>);
-  }
+  })();
 
-  get autocompleteInput() {
-    return (<Input
-      placeholder="Search for movies, or something"
-      type="text"
-      value={this.props.searchText}
-      onChange={({ target: { value } }) => this.props.updateSearchText(value)}
-      onBlur={() => this.props.setVisible(false)}
-      onFocus={() => this.props.setVisible(true)}
-      innerRef={(el) => { this.inputEl = el; }}
-    />);
-  }
+  const autocompleteInput = (<Input
+    placeholder="Search for movies, or something"
+    type="text"
+    value={searchText}
+    onChange={({ target: { value } }) => updateSearchText(value)}
+    onBlur={() => setVisible(false)}
+    onFocus={() => setVisible(true)}
+    innerRef={inputRef}
+  />);
 
-  render() {
-    const { visible } = this.props;
-    return (<OuterContainer>
-      { this.autocompleteInput }
-      { visible && this.autocompleteContainer }
-    </OuterContainer>);
-  }
-}
+  return (<OuterContainer>
+    { autocompleteInput }
+    { visible && autocompleteContainer }
+  </OuterContainer>);
+};
