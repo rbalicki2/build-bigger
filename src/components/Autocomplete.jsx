@@ -4,6 +4,7 @@ import queryString from 'query-string';
 import { Input, ResultsContainer, OuterContainer, List } from './AutocompleteSubcomponents';
 import PromiseUnwrapper from './PromiseUnwrapper';
 
+const POP_STATE_EVENT = 'popstate';
 class QueryParamProvider extends Component {
   state = {
     queryValue: queryString.parse(location.search)[this.props.query],
@@ -15,21 +16,18 @@ class QueryParamProvider extends Component {
     this.originalPushState = history.pushState;
     history.pushState = this.updateQueryString.bind(this, this.originalPushState);
     this.props.onQueryValueChange(this.state.queryValue);
+    window.addEventListener(POP_STATE_EVENT, this.updateQueryValueInState);
   }
 
   componentWillUnmount() {
     history.replaceState = this.originalReplaceState;
     history.pushState = this.originalPushState;
+    window.removeEventListener(POP_STATE_EVENT, this.updateQueryValueInState);
   }
 
   updateQueryString = (method, ...args) => {
     method.call(history, ...args);
-    const newValue = queryString.parse(location.search)[this.props.query];
-    if (this.state.queryValue !== newValue) {
-      this.setState({
-        queryValue: newValue,
-      }, () => this.props.onQueryValueChange(newValue));
-    }
+    this.updateQueryValueInState();
   }
 
   setQueryValue = (newVal, method = 'replaceState') => {
@@ -38,6 +36,15 @@ class QueryParamProvider extends Component {
       [this.props.query]: newVal,
     };
     history[method](null, null, `?${queryString.stringify(newQueries)}`);
+  };
+
+  updateQueryValueInState = () => {
+    const newValue = queryString.parse(location.search)[this.props.query];
+    if (this.state.queryValue !== newValue) {
+      this.setState({
+        queryValue: newValue,
+      }, () => this.props.onQueryValueChange(newValue));
+    }
   };
 
   render() {
