@@ -2,6 +2,17 @@
 
 > You can view the presentation [here](https://build-bigger.robertbalicki.com/presentation).
 
+## [Tag v3](https://github.com/rbalicki2/build-bigger/tree/v3/)
+
+### Files to look at
+
+[`src/components/Autocomplete.jsx`](https://github.com/rbalicki2/build-bigger/blob/v3/src/components/Autocomplete.jsx)
+
+### What did we change since v2?
+
+* Made `Autocomplete` a pure component by moving the `handleDocumentClick` stuff
+  into the state manager component.
+
 ## [Tag v2](https://github.com/rbalicki2/build-bigger/tree/v2/)
 
 ### Files to look at
