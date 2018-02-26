@@ -3,7 +3,6 @@ module.exports = {
   extends: [
     'airbnb',
     'plugin:flowtype/recommended',
-    'plugin:eslint-comments/recommended',
     'plugin:react/recommended',
   ],
   env: {

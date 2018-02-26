@@ -29,7 +29,7 @@ const addQueryParams = InnerComponent =>
     }
 
     render() {
-      return <InnerComponent {...this.state} />;
+      return <InnerComponent {...this.props} {...this.state} />;
     }
   };
 
