@@ -2,6 +2,28 @@
 
 > You can view the presentation [here](https://build-bigger.robertbalicki.com/presentation).
 
+## [Tag v1](https://github.com/rbalicki2/build-bigger/tree/v1/)
+
+### Files to look at
+
+[`src/components/Autocomplete.jsx`](https://github.com/rbalicki2/build-bigger/blob/v1/src/components/Autocomplete.jsx)
+
+### What did we change since v0?
+
+* We changed the `addQueryParams` HOC to a `QueryParamProvider` render prop.
+* We added an intermediate component (an unnamed default export), which connected
+  `QueryParamProvider` to `Autocomplete` and passed `searchText`.
+* We changed `Autocomplete` to no longer store `searchText` on its state. It now
+  only uses `this.props.searchText`.
+* We moved some of the logic in the `Autocomplete`'s render method to two
+  different methods.
+
+### What is still wrong?
+
+* We're watching `this.props.searchText` for changes. This is unfortunate, and with
+  some work, we can clean it up.
+* We're still managing the async state haphazardly.
+
 ## [Tag v0](https://github.com/rbalicki2/build-bigger/tree/v0/)
 
 ### Files to look at:
