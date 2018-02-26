@@ -65,20 +65,17 @@ export default class AutocompleteStateHandler extends Component {
       this.inputEl
         && e.target !== this.inputEl
         && this.state.visible
-        && !this.isUpdatingVisibility
     ) {
       this.setState({ visible: false });
     }
   };
 
   fetchAutocomplete = (searchText) => {
-    this.isUpdatingVisibility = true;
-    this.setState({
-      autocompletePromise: fetchAutocompleteResults(searchText),
-      visible: true,
-    });
     setTimeout(() => {
-      this.isUpdatingVisibility = false;
+      this.setState({
+        autocompletePromise: fetchAutocompleteResults(searchText),
+        visible: true,
+      });
     });
   }
 
