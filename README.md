@@ -2,6 +2,30 @@
 
 > You can view the presentation [here](https://build-bigger.robertbalicki.com/presentation).
 
+## [Tag v4](https://github.com/rbalicki2/build-bigger/tree/v4/)
+
+### Files to look at
+
+[`src/components/Autocomplete.jsx`](https://github.com/rbalicki2/build-bigger/blob/v4/src/components/Autocomplete.jsx)
+
+### What did we change since v3?
+
+* Created a `PromiseUnwrapper` component that unwraps our promise-related state.
+* Instead of handling that haphazardly in our `AutocompleteStateManager` component,
+  our `StateManager` just calls `setState({ autocompletePromise })`, and the
+  `PromiseUnwrapper` allows us to render it.
+* Use `requestAnimationFrame` instead of `isUpdatingVisibility` to handle the
+  `handleDocumentClick` issue.
+
+### What can still be improved?
+
+* This `handleDocumentClick` stuff is not ideal. Perhaps forcing the input to be
+  focused, e.g. with a totally-not-awkward `FocusManagedInput` component would clear
+  things up.
+* See, for example [this package](https://www.npmjs.com/package/react-controlled-focus)
+* In the end, query params and focus are properties of the document, and React doesn't
+  
+
 ## [Tag v3](https://github.com/rbalicki2/build-bigger/tree/v3/)
 
 ### Files to look at
