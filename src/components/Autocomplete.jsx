@@ -3,48 +3,50 @@ import fetchAutocompleteResults from 'src/services/autocomplete-service';
 import queryString from 'query-string';
 import { Input, ResultsContainer, OuterContainer, List } from './AutocompleteSubcomponents';
 
-const addQueryParams = InnerComponent =>
-  class QueryParamSetter extends Component {
-    state = {
-      qs: queryString.parse(location.search),
-    };
-
-    componentDidMount() {
-      this.originalReplaceState = history.replaceState;
-      history.replaceState = this.updateQueryString.bind(this, this.originalReplaceState);
-      this.originalPushState = history.pushState;
-      history.pushState = this.updateQueryString.bind(this, this.originalPushState);
-    }
-
-    componentWillUnmount() {
-      history.replaceState = this.originalReplaceState;
-      history.pushState = this.originalPushState;
-    }
-
-    updateQueryString = (method, ...args) => {
-      method.call(history, ...args);
-      this.setState({
-        qs: queryString.parse(location.search),
-      });
-    }
-
-    render() {
-      return <InnerComponent {...this.props} {...this.state} />;
-    }
-  };
-
-class Autocomplete extends Component {
+class QueryParamProvider extends Component {
   state = {
-    searchText: this.props.qs.searchText,
-    autocompleteValues: [],
-    currentRequestId: 0,
-    loading: false,
-    visible: !!this.props.qs.searchText,
+    qs: queryString.parse(location.search),
   };
 
   componentDidMount() {
-    if (this.state.searchText) {
-      this.fetchAutocomplete();
+    this.originalReplaceState = history.replaceState;
+    history.replaceState = this.updateQueryString.bind(this, this.originalReplaceState);
+    this.originalPushState = history.pushState;
+    history.pushState = this.updateQueryString.bind(this, this.originalPushState);
+  }
+
+  componentWillUnmount() {
+    history.replaceState = this.originalReplaceState;
+    history.pushState = this.originalPushState;
+  }
+
+  updateQueryString = (method, ...args) => {
+    method.call(history, ...args);
+    this.setState({
+      qs: queryString.parse(location.search),
+    });
+  }
+
+  render() {
+    return this.props.children(this.state.qs);
+  }
+}
+
+export default () => (<QueryParamProvider>{({ searchText }) =>
+  <Autocomplete searchText={searchText} />
+}</QueryParamProvider>);
+
+class Autocomplete extends Component {
+  state = {
+    autocompleteValues: [],
+    currentRequestId: 0,
+    loading: false,
+    visible: !!this.props.searchText,
+  };
+
+  componentDidMount() {
+    if (this.props.searchText) {
+      this.fetchAutocomplete(this.props.searchText);
     }
     document.addEventListener('click', this.handleDocumentClick);
   }
@@ -52,10 +54,8 @@ class Autocomplete extends Component {
   componentWillReceiveProps(newProps) {
     // synchronize our local state with what was provided to us, if its different
     // and make the box visible
-    if (newProps.qs.searchText !== this.state.searchText) {
-      this.setState({
-        searchText: newProps.qs.searchText || '',
-      }, this.fetchAutocomplete);
+    if (newProps.searchText !== this.props.searchText) {
+      this.fetchAutocomplete(newProps.searchText);
     }
     this.isUpdatingVisibility = true;
     this.setState({
@@ -87,9 +87,8 @@ class Autocomplete extends Component {
     }
   };
 
-  fetchAutocomplete = () => {
+  fetchAutocomplete = (searchText) => {
     const currentRequestId = this.state.currentRequestId + 1;
-    const { searchText } = this.state;
     this.setState({
       currentRequestId,
       loading: true,
@@ -109,21 +108,11 @@ class Autocomplete extends Component {
   }
 
   updateText = ({ target: { value } }) => {
-    this.setState({
-      searchText: value || '',
-    }, () => {
-      this.fetchAutocomplete();
-      // N.B. we need to wait until the searchText has been committed to state,
-      // because otherwise the check in componentWillReceiveProps will be incorrect,
-      // and we will call fetchAutocomplete twice!
-      window.history.replaceState(null, null, `?${queryString.stringify(qs)}`);
-    });
     const qs = {
       ...queryString.parse(location.search),
       searchText: value,
     };
-    // N.B. will not work here:
-    // window.history.replaceState(null, null, `?${queryString.stringify(qs)}`);
+    window.history.replaceState(null, null, `?${queryString.stringify(qs)}`);
   };
 
   get autocompleteContainer() {
@@ -140,13 +129,23 @@ class Autocomplete extends Component {
     </ResultsContainer>);
   }
 
+  get autocompleteInput() {
+    return (<Input
+      placeholder="Search for movies, or something"
+      type="text"
+      value={this.props.searchText}
+      onChange={this.updateText}
+      onBlur={() => this.setState({ visible: false })}
+      onFocus={() => this.setState({ visible: true })}
+      innerRef={(el) => { this.inputEl = el; }}
+    />);
+  }
+
   render() {
     const { visible } = this.state;
     return (<OuterContainer>
-      { this.input }
+      { this.autocompleteInput }
       { visible && this.autocompleteContainer }
     </OuterContainer>);
   }
 }
-
-export default addQueryParams(Autocomplete);
