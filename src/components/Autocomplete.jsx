@@ -65,18 +65,36 @@ export default class AutocompleteStateHandler extends Component {
       this.inputEl
         && e.target !== this.inputEl
         && this.state.visible
+        // && !this.state.isFetchingAutocomplete
     ) {
       this.setState({ visible: false });
     }
   };
 
   fetchAutocomplete = (searchText) => {
-    setTimeout(() => {
+    // N.B. There is an outstanding issue. handleDocumentClick is executed
+    // after fetchAutocomplete. It sets the staet `visible: false`, thus causing
+    // the autocompleteContainer to incorrectly hide.
+
+    // Solution 1: use a requestAnimationFrame
+    requestAnimationFrame(() => {
       this.setState({
         autocompletePromise: fetchAutocompleteResults(searchText),
         visible: true,
       });
     });
+
+    // Solution 2: use a flag and avoid setting visible: false in handleDocumentClick
+    // this.setState({
+    //   autocompletePromise: fetchAutocompleteResults(searchText),
+    //   visible: true,
+    //   isFetchingAutocomplete: true,
+    // });
+    // setTimeout(() => {
+    //   this.setState({
+    //     isFetchingAutocomplete: false,
+    //   });
+    // });
   }
 
   render() {
