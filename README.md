@@ -2,6 +2,26 @@
 
 > You can view the presentation [here](https://build-bigger.robertbalicki.com/presentation).
 
+## [Tag v2](https://github.com/rbalicki2/build-bigger/tree/v2/)
+
+### Files to look at
+
+[`src/components/Autocomplete.jsx`](https://github.com/rbalicki2/build-bigger/blob/v2/src/components/Autocomplete.jsx)
+
+### What did we change since v1?
+
+* We made `QueryParamProvider` provide a single query param, instead of
+  all of them, and gave it the ability to execute a listener.
+* We made a new `AutocompleteStateProvider` component, which handles all of
+  the state, and which leaves `Autocomplete` almost as a pure component!
+
+### What is still wrong?
+
+* `Autocomplete` still handles setting visible to false when you click
+  on the rest of the document. That should be handled by whoever controls
+  the `visible` state, i.e. by the `AutocompleteStateHandler`!
+* We're still manually handling the async state.
+
 ## [Tag v1](https://github.com/rbalicki2/build-bigger/tree/v1/)
 
 ### Files to look at
