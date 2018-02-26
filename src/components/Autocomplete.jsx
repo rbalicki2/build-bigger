@@ -35,15 +35,15 @@ const addQueryParams = InnerComponent =>
 
 class Autocomplete extends Component {
   state = {
-    currentText: this.props.qs.searchText,
+    searchText: this.props.qs.searchText,
     autocompleteValues: [],
-    currentId: 0,
+    currentRequestId: 0,
     loading: false,
     visible: !!this.props.qs.searchText,
   };
 
   componentDidMount() {
-    if (this.state.currentText) {
+    if (this.state.searchText) {
       this.fetchAutocomplete();
     }
     document.addEventListener('click', this.handleDocumentClick);
@@ -52,9 +52,9 @@ class Autocomplete extends Component {
   componentWillReceiveProps(newProps) {
     // synchronize our local state with what was provided to us, if its different
     // and make the box visible
-    if (newProps.qs.searchText !== this.state.currentText) {
+    if (newProps.qs.searchText !== this.state.searchText) {
       this.setState({
-        currentText: newProps.qs.searchText || '',
+        searchText: newProps.qs.searchText || '',
       }, this.fetchAutocomplete);
     }
     this.isUpdatingVisibility = true;
@@ -88,16 +88,16 @@ class Autocomplete extends Component {
   };
 
   fetchAutocomplete = () => {
-    const currentId = this.state.currentId + 1;
-    const { currentText } = this.state;
+    const currentRequestId = this.state.currentRequestId + 1;
+    const { searchText } = this.state;
     this.setState({
-      currentId,
+      currentRequestId,
       loading: true,
     });
-    fetchAutocompleteResults(currentText)
+    fetchAutocompleteResults(searchText)
       .then((arr) => {
-        // N.B. Check if the currentId matches. Only update state if it does.
-        if (currentId !== this.state.currentId) {
+        // N.B. Check if the currentRequestId matches. Only update state if it does.
+        if (currentRequestId !== this.state.currentRequestId) {
           return;
         }
 
@@ -110,10 +110,10 @@ class Autocomplete extends Component {
 
   updateText = ({ target: { value } }) => {
     this.setState({
-      currentText: value || '',
+      searchText: value || '',
     }, () => {
       this.fetchAutocomplete();
-      // N.B. we need to wait until the currentText has been committed to state,
+      // N.B. we need to wait until the searchText has been committed to state,
       // because otherwise the check in componentWillReceiveProps will be incorrect,
       // and we will call fetchAutocomplete twice!
       window.history.replaceState(null, null, `?${queryString.stringify(qs)}`);
@@ -143,7 +143,7 @@ class Autocomplete extends Component {
       <Input
         placeholder="Search for movies, or something"
         type="text"
-        value={this.state.currentText}
+        value={this.state.searchText}
         onChange={this.updateText}
         onBlur={() => this.setState({ visible: false })}
         onFocus={() => this.setState({ visible: true })}
