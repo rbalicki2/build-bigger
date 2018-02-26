@@ -9,21 +9,30 @@ const router = {
 const withRouter = (EnhancedComponent) =>
   class WithRouter extends Component {
     render() {
-      return <EnhancedComponent {...this.props} router={router} />;
+      return (<EnhancedComponent
+        {...this.props}
+        router={router}
+      />);
     }
   };
 
 // Usage:
-const ExistingComponent = ({ router }) => (<div onClick={() => router.push('/home')}>
-  Go home
-</div>);
-const ExistingComponentWithRouter = withRouter(ExistingComponent);
+const ExistingComponent = ({ router }) => (
+  <div onClick={() => router.push('/home')}>
+    Go home
+  </div>
+);
+const ExistingComponentWithRouter = withRouter(
+  ExistingComponent
+);
+
 
 // Render prop example
-const RouterProvider = ({ children }) => children(router);
+const RouterProvider = ({ children }) =>
+  children(router);
 
 // Usage:
-<RouterProvider>{ router => 
+<RouterProvider>{router => 
   (<div onClick={() => router.push('/home')}>
     Go home
   </div>)
