@@ -2,6 +2,7 @@ import React, { Component } from 'react';
 import fetchAutocompleteResults from 'src/services/autocomplete-service';
 import queryString from 'query-string';
 import { Input, ResultsContainer, OuterContainer, List } from './AutocompleteSubcomponents';
+import PromiseUnwrapper from './PromiseUnwrapper';
 
 class QueryParamProvider extends Component {
   state = {
@@ -46,9 +47,6 @@ class QueryParamProvider extends Component {
 
 export default class AutocompleteStateHandler extends Component {
   state = {
-    autocompleteValues: [],
-    currentRequestId: 0,
-    loading: false,
     visible: !!this.props.searchText,
   };
 
@@ -74,36 +72,14 @@ export default class AutocompleteStateHandler extends Component {
   };
 
   fetchAutocomplete = (searchText) => {
-    const currentRequestId = this.state.currentRequestId + 1;
     this.isUpdatingVisibility = true;
     this.setState({
-      currentRequestId,
-      loading: true,
+      autocompletePromise: fetchAutocompleteResults(searchText),
       visible: true,
     });
     setTimeout(() => {
       this.isUpdatingVisibility = false;
     });
-    fetchAutocompleteResults(searchText)
-      .then((arr) => {
-        // N.B. Check if the currentRequestId matches. Only update state if it does.
-        if (currentRequestId !== this.state.currentRequestId) {
-          return;
-        }
-
-        this.setState({
-          autocompleteValues: arr,
-          loading: false,
-        });
-      });
-  }
-
-  updateVisibility = (visible) => {
-    if (!this.isUpdatingVisibility) {
-      this.setState({
-        visible,
-      });
-    }
   }
 
   render() {
@@ -113,15 +89,20 @@ export default class AutocompleteStateHandler extends Component {
     >
       {
         (searchText, updateSearchText) =>
-          (<Autocomplete
-            searchText={searchText}
-            updateSearchText={updateSearchText}
-            loading={this.state.loading}
-            visible={this.state.visible}
-            setVisible={visible => this.setState({ visible })}
-            autocompleteValues={this.state.autocompleteValues}
-            inputRef={(el) => { this.inputEl = el; }}
-          />)
+          (<PromiseUnwrapper promise={this.state.autocompletePromise}>
+            {
+              (loading, autocompleteValues = []) =>
+                (<Autocomplete
+                  searchText={searchText}
+                  updateSearchText={updateSearchText}
+                  loading={loading}
+                  visible={this.state.visible}
+                  setVisible={visible => this.setState({ visible })}
+                  autocompleteValues={autocompleteValues}
+                  inputRef={(el) => { this.inputEl = el; }}
+                />)
+            }
+          </PromiseUnwrapper>)
       }
     </QueryParamProvider>);
   }
