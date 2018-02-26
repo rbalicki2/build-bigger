@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import fetchAutocompleteResults from 'src/services/autocomplete-service';
 import queryString from 'query-string';
-import { Input, ResultsContainer, OuterContainer, List } from './Components';
+import { Input, ResultsContainer, OuterContainer, List } from './AutocompleteSubcomponents';
 
 const addQueryParams = InnerComponent =>
   class QueryParamSetter extends Component {

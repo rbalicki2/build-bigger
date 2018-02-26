@@ -2,8 +2,8 @@ import React from 'react';
 
 import { BrowserRouter, Route } from 'react-router-dom';
 
-import HomePage from 'src/components/App/HomePage';
-import AutocompletePage from 'src/components/App/AutocompletePage';
+import HomePage from 'src/components/HomePage';
+import AutocompletePage from 'src/components/AutocompletePage';
 
 export default () => (
   <BrowserRouter>
