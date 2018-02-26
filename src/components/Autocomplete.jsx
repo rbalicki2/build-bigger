@@ -126,8 +126,8 @@ class Autocomplete extends Component {
     // window.history.replaceState(null, null, `?${queryString.stringify(qs)}`);
   };
 
-  render() {
-    const { autocompleteValues, loading, visible } = this.state;
+  get autocompleteContainer() {
+    const { autocompleteValues, loading } = this.state;
     const autocompleteRows = autocompleteValues.map(val => <li key={val}>{ val }</li>);
     const autocompleteSection = autocompleteValues.length > 0
       ? (<List>{ autocompleteRows }</List>)
@@ -135,21 +135,16 @@ class Autocomplete extends Component {
     const autocompleteDiv = loading
       ? <List><li>Loading...</li></List>
       : autocompleteSection;
-    const autocompleteContainer = (<ResultsContainer>
+    return (<ResultsContainer>
       { autocompleteDiv }
     </ResultsContainer>);
+  }
 
+  render() {
+    const { visible } = this.state;
     return (<OuterContainer>
-      <Input
-        placeholder="Search for movies, or something"
-        type="text"
-        value={this.state.searchText}
-        onChange={this.updateText}
-        onBlur={() => this.setState({ visible: false })}
-        onFocus={() => this.setState({ visible: true })}
-        innerRef={(el) => { this.inputEl = el; }}
-      />
-      { visible && autocompleteContainer }
+      { this.input }
+      { visible && this.autocompleteContainer }
     </OuterContainer>);
   }
 }
